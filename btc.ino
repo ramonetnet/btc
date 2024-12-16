@@ -6,6 +6,7 @@
 // v 1.0 - 20241214 - 
 //   1.1 -          - use MarketData key
 //   1.2            - use TFT_eSPI.h instead of Adafruit_ST7789.h
+//   1.3            - save keys in external file and dont send it to GihHub 
 //
 //=============================================================================
 
@@ -13,34 +14,26 @@
 #include <HTTPClient.h>
 
 #include <ArduinoJson.h>   // per "DynamicJsonDocument doc(1024) ;"
-// #include <Adafruit_GFX.h>
-// #include <Adafruit_ST7789.h>
 
 #include <TFT_eSPI.h>
 #include <SPI.h>
 
 int cnt = 0 ;
 
-// Replace with your network credentials
-const char* ssid     = "Maset";
-const char* password = "io1959.0";
-
-// Replace with your CoinAPI key
-const char* api_key = "372CFADB-E948-4F75-8A1F-104963BD11A4";
+#include <credentials.h>      
+const char* ssid     = STASSID ;
+const char* password = STAPSK ;
+const char* api_key = STA_API_KEY ;
 const char* api_url = "https://rest.coinapi.io/v1/exchangerate/BTC/USD";
 
 // Define the waiting time between the API calls
 const int waiting_time = 900000; // Wait for 15 minutes
 
-// Define the pins
-// #define TFT_CS  5
-// #define TFT_RST 4
-// #define TFT_DC  2
-
 // Initialize the ST7789 display
-// Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
+
 TFT_eSPI tft = TFT_eSPI();
 
+// +++ code
 
 void InitSerial(void) 
 {
@@ -55,7 +48,7 @@ void InitSerial(void)
 void setup() {
 
   InitSerial()  ;  // Initialize serial communication
-  Serial.println( "*** btc.ino v 1.2 ***" ) ; 
+  Serial.println( "*** btc.ino v 1.3 ***" ) ; 
 
   tft.init() ;                             // Initialize the display
   tft.setRotation(3);
@@ -79,7 +72,7 @@ void loop() {
 
   cnt = cnt + 1 ;
   Serial.print  ( cnt ) ;
-  Serial.println(" +++ get BTC +++");
+  Serial.println(" +++ get BTC v 1.3 +++");
 
   delay(waiting_time);
   displayBitcoinPrice();  
@@ -135,8 +128,9 @@ String formatTime(String time) {
     hour = 12; // Midnight case
   }
 
-  String formattedTime = monthName + " " + day + ", " + year + ", ";
-  formattedTime += String(hour) + ":" + minute + " " + period + " UTC";
+//  String formattedTime = monthName + " " + day + ", " + year + ", ";
+//  formattedTime += String(hour) + ":" + minute + " " + period + " UTC";
+  String formattedTime = String(hour) + ":" + minute + " " + period + " UTC";
 
   return formattedTime;
 
@@ -184,15 +178,13 @@ void displayBitcoinPrice() {
       tft.print("Bitcoin Price");
       tft.setCursor(10, 60);
       tft.print("USD ");
-      tft.setCursor(90, 60);
+      tft.setCursor(80, 60);
       tft.print(price, 2);
 
       tft.setTextColor(TFT_BLUE, TFT_BLACK);
       tft.setFreeFont(&Orbitron_Light_24);
-      tft.setCursor(0, 115);
+      tft.setCursor(10, 115);
       tft.print(formatted_date);
-//      tft.setCursor(0, 125);
-//      tft.print("Update every 15 minutes");
 
     } else {
 
